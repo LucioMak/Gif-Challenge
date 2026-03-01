@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GIF Challenge">
+<meta name="theme-color" content="#ff4fa3">
+<title>GIF Challenge 🎉</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Boogaloo&family=Nunito:wght@400;700;900&display=swap');
+:root{--pink:#ff4fa3;--blue:#4fa3ff;--tg:#29b6f6;--yellow:#ffe94f;--green:#4fff91;--dark:#0d0d1a;--card:#1a1a2e;--card2:#16213e;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--dark);color:#fff;font-family:'Nunito',sans-serif;min-height:100vh;overflow-x:hidden;}
+h1{font-family:'Boogaloo',cursive;font-size:clamp(1.8rem,6vw,3rem);text-align:center;padding:1rem 1rem 0.2rem;background:linear-gradient(135deg,var(--pink),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.tabs{display:flex;justify-content:center;gap:6px;padding:.4rem 1rem;flex-wrap:wrap;}
+.tab{background:var(--card);border:2px solid #333;color:#888;padding:.45rem 1rem;border-radius:50px;cursor:pointer;font-family:'Boogaloo',cursive;font-size:1rem;transition:all .2s;}
+.tab.active{border-color:var(--pink);color:var(--pink);background:rgba(255,79,163,.1);}
+.page{display:none;padding:1rem;max-width:700px;margin:0 auto;}
+.page.active{display:block;}
+
+/* BUTTONS */
+.btn{font-family:'Boogaloo',cursive;font-size:1.05rem;padding:.55rem 1.2rem;border-radius:50px;border:none;cursor:pointer;transition:transform .1s;}
+.btn:active{transform:scale(.95);}
+.btn-pink{background:linear-gradient(135deg,var(--pink),#c240ff);color:white;}
+.btn-blue{background:linear-gradient(135deg,var(--blue),#40c2ff);color:white;}
+.btn-tg{background:linear-gradient(135deg,var(--tg),#0288d1);color:white;}
+.btn-yellow{background:var(--yellow);color:#333;}
+.btn-dark{background:var(--card);color:#aaa;border:2px solid #444;}
+.btn-green{background:var(--green);color:#003;}
+.btn-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:.6rem 0;}
+input,select{background:var(--card);border:2px solid #444;border-radius:50px;padding:.5rem 1rem;color:white;font-family:'Nunito',sans-serif;font-size:1rem;}
+input:focus,select:focus{outline:none;border-color:var(--pink);}
+input[type=password]{letter-spacing:2px;}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:.4rem 0;}
+.stitle{font-family:'Boogaloo',cursive;font-size:1.2rem;color:#999;margin:.8rem 0 .3rem;}
+.empty{text-align:center;color:#555;padding:2rem;}
+
+/* ALERT */
+.alert{border-radius:12px;padding:.7rem 1rem;text-align:center;margin:.4rem 0;font-size:.95rem;border:2px solid var(--pink);background:rgba(255,79,163,.12);display:none;}
+
+/* GAME */
+.gif-box{position:relative;width:100%;max-width:380px;margin:0 auto .7rem;border-radius:16px;overflow:hidden;border:3px solid #333;background:#111;min-height:180px;display:flex;align-items:center;justify-content:center;}
+.gif-box img{width:100%;display:block;}
+.no-gif{color:#555;text-align:center;padding:2rem;}
+.gbadge{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.75);border-radius:50px;padding:3px 10px;font-size:1.1rem;}
+.timer-wrap{display:flex;justify-content:center;margin:.3rem 0;}
+.tcircle{position:relative;width:120px;height:120px;}
+.tcircle svg{position:absolute;top:0;left:0;transform:rotate(-90deg);}
+.tcircle circle{fill:none;stroke:#2a2a3e;stroke-width:8;}
+.tcircle circle.prog{stroke:var(--pink);stroke-width:8;stroke-linecap:round;stroke-dasharray:339;stroke-dashoffset:0;transition:stroke-dashoffset 1s linear,stroke .5s;}
+.ttext{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Boogaloo',cursive;font-size:2.2rem;}
+.cur-player{text-align:center;margin:.3rem 0;font-family:'Boogaloo',cursive;font-size:1.5rem;}
+.girl-tag{background:rgba(255,79,163,.2);color:var(--pink);border:2px solid var(--pink);padding:2px 14px;border-radius:50px;}
+.boy-tag{background:rgba(79,163,255,.2);color:var(--blue);border:2px solid var(--blue);padding:2px 14px;border-radius:50px;}
+
+/* MEDIA */
+.itabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.7rem;}
+.itab{font-family:'Boogaloo',cursive;font-size:.95rem;padding:.35rem .9rem;border-radius:50px;border:2px solid #444;background:transparent;color:#888;cursor:pointer;transition:all .2s;}
+.itab.active{border-color:var(--blue);color:var(--blue);background:rgba(79,163,255,.1);}
+.ipanel{display:none;}.ipanel.active{display:block;}
+.dropzone{border:3px dashed #444;border-radius:16px;padding:1.5rem;text-align:center;cursor:pointer;color:#666;font-size:.95rem;transition:border-color .2s;}
+.dropzone:hover,.dropzone.over{border-color:var(--pink);color:#aaa;}
+.gif-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin-top:.5rem;}
+.gif-card{position:relative;border-radius:12px;overflow:hidden;background:var(--card);border:2px solid #333;}
+.gif-card img{width:100%;aspect-ratio:1;object-fit:cover;display:block;}
+.gif-card .gbadge2{position:absolute;top:3px;right:3px;font-size:.85rem;background:rgba(0,0,0,.75);border-radius:50px;padding:2px 5px;}
+.gif-card .src{position:absolute;bottom:3px;left:3px;font-size:.7rem;background:rgba(0,0,0,.7);border-radius:4px;padding:1px 4px;color:#aaa;}
+.gif-card .del{position:absolute;top:3px;left:3px;background:rgba(200,0,0,.85);color:white;border:none;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:11px;display:none;align-items:center;justify-content:center;}
+.gif-card:hover .del{display:flex;}
+.gif-card.girl{border-color:var(--pink);}
+.gif-card.boy{border-color:var(--blue);}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin:.5rem 0;}
+.fbtn{padding:.3rem .85rem;border-radius:50px;border:2px solid #444;background:transparent;color:#888;cursor:pointer;font-size:.85rem;transition:all .2s;}
+.fbtn.active{border-color:var(--yellow);color:var(--yellow);background:rgba(255,233,79,.08);}
+
+/* TG */
+.tg-info{background:rgba(41,182,246,.07);border:1px solid rgba(41,182,246,.25);border-radius:12px;padding:.8rem;margin-bottom:.7rem;font-size:.83rem;color:#aaa;line-height:1.7;}
+.tg-info a{color:var(--tg);}
+.tg-info code{background:#1a2a3a;padding:1px 5px;border-radius:4px;color:var(--yellow);}
+.tg-box{background:var(--card2);border-radius:14px;padding:.9rem;margin-bottom:.7rem;}
+.tg-box h3{font-family:'Boogaloo',cursive;font-size:1.1rem;color:var(--tg);margin-bottom:.5rem;}
+.tg-status{font-size:.83rem;color:#666;margin-top:.3rem;}
+.tg-status.ok{color:var(--green);}
+.tg-status.err{color:#ff6b6b;}
+.sticker-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:6px;margin-top:.6rem;max-height:320px;overflow-y:auto;}
+.stk{position:relative;border-radius:10px;overflow:hidden;background:var(--card);border:2px solid #333;cursor:pointer;aspect-ratio:1;}
+.stk img{width:100%;height:100%;object-fit:contain;padding:3px;}
+.stk:hover{border-color:var(--tg);}
+.stk.sel{border-color:var(--yellow);}
+.stk .ck{position:absolute;top:2px;right:2px;background:var(--yellow);color:#333;border-radius:50%;width:16px;height:16px;display:none;align-items:center;justify-content:center;font-size:10px;font-weight:bold;}
+.stk.sel .ck{display:flex;}
+.progress-bar{height:8px;background:#2a2a3e;border-radius:4px;overflow:hidden;margin:.5rem 0;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--tg),var(--blue));border-radius:4px;transition:width .3s;}
+
+/* PLAYERS */
+.plist{display:flex;flex-direction:column;gap:7px;margin:.7rem 0;}
+.pitem{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:12px;padding:.55rem 1rem;border:2px solid #333;}
+.pitem.girl{border-color:rgba(255,79,163,.4);}
+.pitem.boy{border-color:rgba(79,163,255,.4);}
+.pname{flex:1;font-size:1rem;}
+.pscore{font-family:'Boogaloo',cursive;font-size:1.2rem;color:var(--yellow);}
+.gtoggle{display:flex;gap:4px;}
+.gbtn{padding:.5rem .9rem;border-radius:50px;border:2px solid #444;background:transparent;cursor:pointer;font-size:1.1rem;color:white;transition:all .2s;}
+.gbtn.ag{border-color:var(--pink);background:rgba(255,79,163,.2);}
+.gbtn.ab{border-color:var(--blue);background:rgba(79,163,255,.2);}
+
+/* SCORES */
+.scoreboard{background:var(--card);border-radius:16px;padding:1rem;margin-top:.5rem;}
+.srow{display:flex;justify-content:space-between;align-items:center;padding:.35rem 0;border-bottom:1px solid #2a2a3e;}
+.srow:last-child{border-bottom:none;}
+
+/* MODALS */
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;align-items:center;justify-content:center;}
+.modal.show{display:flex;}
+.mbox{background:var(--card2);border:2px solid #444;border-radius:20px;padding:1.5rem;text-align:center;max-width:320px;width:92%;}
+.mbox img{width:100%;max-height:200px;object-fit:contain;border-radius:12px;margin-bottom:.8rem;}
+.mbox h3{font-family:'Boogaloo',cursive;font-size:1.4rem;margin-bottom:.7rem;}
+.mbtns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+
+/* CONFETTI */
+.confetti-wrap{position:fixed;inset:0;pointer-events:none;z-index:999;display:none;}
+.cp{position:absolute;border-radius:2px;animation:fall linear forwards;}
+@keyframes fall{from{transform:translateY(-20px) rotate(0deg);opacity:1}to{transform:translateY(100vh) rotate(720deg);opacity:0}}
+
+/* INSTALL BANNER */
+.install-banner{display:none;position:fixed;bottom:0;left:0;right:0;z-index:300;background:linear-gradient(135deg,#ff4fa3,#c240ff);padding:.7rem 1rem;align-items:center;justify-content:space-between;gap:8px;}
+.install-banner p{font-family:'Boogaloo',cursive;font-size:.95rem;}
+
+.spin{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-left:5px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div class="confetti-wrap" id="confetti"></div>
+
+<div class="install-banner" id="installBanner">
+  <p>📱 Installer sur ton téléphone !</p>
+  <div style="display:flex;gap:6px;">
+    <button onclick="doInstall()" class="btn" style="background:white;color:#c240ff;font-size:.9rem;padding:.4rem .9rem;">Installer</button>
+    <button onclick="showInstallHelp()" class="btn" style="background:rgba(0,0,0,.2);color:white;font-size:.85rem;padding:.4rem .8rem;border:1px solid rgba(255,255,255,.3);">Aide</button>
+    <button onclick="this.closest('.install-banner').style.display='none'" style="background:rgba(0,0,0,.2);color:white;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:1rem;">✕</button>
+  </div>
+</div>
+
+<!-- INSTALL HELP MODAL -->
+<div class="modal" id="installModal">
+  <div class="mbox" style="max-width:360px;">
+    <h3>📱 Installer l'appli</h3>
+    <p style="color:#aaa;font-size:.85rem;line-height:1.7;text-align:left;margin-bottom:1rem;">
+      Le bouton "Installer" ne fonctionne que si l'appli est ouverte via un lien <strong style="color:var(--green)">https://</strong> — pas depuis un fichier téléchargé.<br><br>
+      <strong style="color:var(--tg)">✅ Solution gratuite en 30 secondes :</strong><br>
+      1. Va sur <strong>netlify.com/drop</strong> sur ton PC<br>
+      2. Glisse le fichier <code style="background:#1a2a3a;padding:1px 4px;border-radius:3px;color:var(--yellow)">GIF-Challenge.html</code><br>
+      3. Tu reçois un lien <code style="background:#1a2a3a;padding:1px 4px;border-radius:3px;color:var(--yellow)">.netlify.app</code><br>
+      4. Ouvre ce lien sur ton téléphone dans Chrome<br>
+      5. La bannière "Installer" apparaît → tape-la !<br><br>
+      <strong style="color:var(--pink)">Sur iPhone :</strong> Ouvre dans Safari → Partager → "Sur l'écran d'accueil"
+    </p>
+    <button class="btn btn-pink" onclick="document.getElementById('installModal').classList.remove('show')">OK compris !</button>
+  </div>
+</div>
+
+<!-- GENDER MODAL (single) -->
+<div class="modal" id="gModal">
+  <div class="mbox">
+    <h3>Ce média c'est pour… ?</h3>
+    <img id="gModalImg" src="" alt="">
+    <div class="mbtns">
+      <button class="btn btn-pink" onclick="assignGender('girl')" style="font-size:1.2rem;">👩 Fille</button>
+      <button class="btn btn-blue" onclick="assignGender('boy')" style="font-size:1.2rem;">👦 Garçon</button>
+    </div>
+  </div>
+</div>
+
+<!-- BULK GENDER MODAL (telegram) -->
+<div class="modal" id="bulkModal">
+  <div class="mbox">
+    <h3>Ce pack est pour… ?</h3>
+    <p id="bulkMsg" style="color:#aaa;font-size:.88rem;margin-bottom:.8rem;">Conversion en cours…</p>
+    <div class="mbtns">
+      <button class="btn btn-pink" onclick="assignBulk('girl')" style="font-size:1.1rem;">👩 Filles</button>
+      <button class="btn btn-blue" onclick="assignBulk('boy')" style="font-size:1.1rem;">👦 Garçons</button>
+      <button class="btn btn-dark" onclick="assignBulk('unset')" style="font-size:.95rem;">❓ Sans genre</button>
+    </div>
+  </div>
+</div>
+
+<h1>🎉 GIF Challenge</h1>
+
+<div class="tabs">
+  <button class="tab active" onclick="goPage('game',this)">🎮 Jeu</button>
+  <button class="tab" onclick="goPage('media',this)">🖼️ Média</button>
+  <button class="tab" onclick="goPage('players',this)">👥 Joueurs</button>
+  <button class="tab" onclick="goPage('scores',this)">🏆 Scores</button>
+</div>
+
+<!-- ===== JEU ===== -->
+<div class="page active" id="page-game">
+  <div class="alert" id="alertBox"></div>
+  <div class="gif-box" id="gifBox"><div class="no-gif">🎲 Lance un tirage pour commencer !<br><small style="color:#444;margin-top:.4rem;display:block;">Ajoute des médias et des joueurs</small></div></div>
+  <div class="timer-wrap">
+    <div class="tcircle">
+      <svg width="120" height="120"><circle cx="60" cy="60" r="54"/><circle cx="60" cy="60" r="54" class="prog" id="timerArc"/></svg>
+      <div class="ttext" id="timerTxt">5:00</div>
+    </div>
+  </div>
+  <div class="cur-player" id="curPlayer"><span style="color:#555;border:2px solid #333;padding:2px 14px;border-radius:50px;">En attente…</span></div>
+  <div class="btn-row">
+    <button class="btn btn-pink" onclick="draw()">🎲 Tirage</button>
+    <button class="btn btn-blue" id="timerBtn" onclick="toggleTimer()">▶️ Chrono</button>
+    <button class="btn btn-yellow" onclick="skip()">⏭️ Passer</button>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-green" onclick="point()">✅ Réussi +1</button>
+    <button class="btn btn-dark" onclick="resetTimer()">🔄 Reset</button>
+  </div>
+  <div style="text-align:center;margin-top:.3rem;">
+    <label style="color:#888;font-size:.9rem;">Durée :
+      <select id="durSel" onchange="resetTimer()">
+        <option value="300">5 min</option>
+        <option value="180">3 min</option>
+        <option value="120">2 min</option>
+        <option value="60">1 min</option>
+        <option value="30">30 sec</option>
+      </select>
+    </label>
+  </div>
+</div>
+
+<!-- ===== MEDIA ===== -->
+<div class="page" id="page-media">
+  <div class="itabs">
+    <button class="itab active" onclick="showImport('files',this)">📁 Fichiers</button>
+    <button class="itab" onclick="showImport('url',this)">🔗 URL</button>
+    <button class="itab" onclick="showImport('tg',this)">✈️ Telegram</button>
+  </div>
+
+  <!-- FILES -->
+  <div class="ipanel active" id="ip-files">
+    <div class="dropzone" id="dropZone"
+      onclick="document.getElementById('fileIn').click()"
+      ondragover="event.preventDefault();this.classList.add('over')"
+      ondragleave="this.classList.remove('over')"
+      ondrop="onDrop(event)">
+      📤 <strong>Clique</strong> ou glisse tes GIFs / stickers ici<br>
+      <small style="color:#555;margin-top:.3rem;display:block;">GIF · WebP · PNG · JPG · MP4</small>
+    </div>
+    <input type="file" id="fileIn" accept="image/*,video/mp4" multiple style="display:none" onchange="onFileInput(event)">
+    <p style="font-size:.78rem;color:#555;margin-top:.5rem;">💡 Android : stickers WhatsApp dans <code style="background:#1a2a3a;padding:1px 4px;border-radius:3px;color:var(--yellow)">WhatsApp/Media/WhatsApp Stickers</code></p>
+  </div>
+
+  <!-- URL -->
+  <div class="ipanel" id="ip-url">
+    <p style="color:#888;font-size:.88rem;margin-bottom:.5rem;">Colle un lien direct vers un GIF ou sticker</p>
+    <div class="row">
+      <input type="text" id="urlIn" placeholder="https://…/sticker.gif" style="flex:1">
+      <button class="btn btn-blue" onclick="importUrl()">Importer</button>
+    </div>
+    <div id="urlPrev" style="display:none;text-align:center;margin:.5rem 0;">
+      <img id="urlPrevImg" style="max-height:120px;border-radius:12px;border:2px solid var(--blue);">
+    </div>
+  </div>
+
+  <!-- TELEGRAM -->
+  <div class="ipanel" id="ip-tg">
+    <div class="tg-info">
+      <strong style="color:var(--tg)">Comment obtenir un token ?</strong><br>
+      1. Ouvre Telegram → cherche <a href="https://t.me/BotFather" target="_blank">@BotFather</a><br>
+      2. Envoie <code>/newbot</code> et suis les étapes<br>
+      3. Copie le token et colle-le ci-dessous<br>
+      4. Entre un lien pack : <code>t.me/addstickers/NomDuPack</code>
+    </div>
+    <div class="tg-box">
+      <h3>🔑 Token Bot</h3>
+      <div class="row">
+        <input type="password" id="tgTok" placeholder="123456789:AAF…" style="flex:1">
+        <button class="btn btn-tg" onclick="checkToken()">Valider</button>
+      </div>
+      <div class="tg-status" id="tgSt"></div>
+    </div>
+    <div class="stitle">Pack de stickers</div>
+    <div class="row">
+      <input type="text" id="packIn" placeholder="t.me/addstickers/NomDuPack" style="flex:1">
+      <button class="btn btn-tg" id="loadBtn" onclick="loadPack()">Charger</button>
+    </div>
+    <div class="progress-bar" id="pgBar" style="display:none"><div class="progress-fill" id="pgFill" style="width:0%"></div></div>
+    <div id="pgLabel" style="font-size:.83rem;color:#888;text-align:center;"></div>
+    <div id="tgPackSection" style="display:none;">
+      <div style="font-family:'Boogaloo',cursive;font-size:1rem;color:var(--tg);margin:.5rem 0;" id="packTitle"></div>
+      <div class="sticker-grid" id="stkGrid"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:.6rem;">
+        <button class="btn btn-dark" onclick="selAll()">☑️ Tout</button>
+        <button class="btn btn-dark" onclick="selNone()">☐ Rien</button>
+        <button class="btn btn-pink" id="importStkBtn" style="display:none" onclick="importStickers()">➕ Importer</button>
+        <span id="selCount" style="color:#888;font-size:.88rem;"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIBRARY -->
+  <div class="stitle">Bibliothèque <span id="totalLbl" style="color:#555;font-size:.9rem;"></span></div>
+  <div class="filters">
+    <button class="fbtn active" onclick="setFilter('all',this)">Tous <span id="cAll"></span></button>
+    <button class="fbtn" onclick="setFilter('girl',this)">👩 <span id="cGirl"></span></button>
+    <button class="fbtn" onclick="setFilter('boy',this)">👦 <span id="cBoy"></span></button>
+    <button class="fbtn" onclick="setFilter('unset',this)">❓ <span id="cUnset"></span></button>
+  </div>
+  <div class="gif-grid" id="gifGrid"></div>
+</div>
+
+<!-- ===== JOUEURS ===== -->
+<div class="page" id="page-players">
+  <div class="stitle">Ajouter un joueur</div>
+  <div class="row">
+    <input type="text" id="pName" placeholder="Prénom…" style="flex:1" onkeydown="if(event.key==='Enter')addPlayer()">
+    <div class="gtoggle">
+      <button class="gbtn ag" id="gG" onclick="setPGender('girl')">👩</button>
+      <button class="gbtn" id="gB" onclick="setPGender('boy')">👦</button>
+    </div>
+    <button class="btn btn-pink" onclick="addPlayer()">+ Ajouter</button>
+  </div>
+  <div class="stitle" style="margin-top:1rem;">Joueurs</div>
+  <div class="plist" id="pList"><div class="empty">Aucun joueur</div></div>
+</div>
+
+<!-- ===== SCORES ===== -->
+<div class="page" id="page-scores">
+  <div class="stitle">🏆 Classement</div>
+  <div class="scoreboard" id="scoreBoard"><div class="empty">Aucun score</div></div>
+  <div class="btn-row" style="margin-top:1rem;">
+    <button class="btn btn-dark" onclick="resetScores()">🗑️ Tout remettre à zéro</button>
+  </div>
+</div>
+
+<script>
+// ========== STATE ==========
+let gifs    = JSON.parse(localStorage.getItem('gc_gifs')    || '[]');
+let players = JSON.parse(localStorage.getItem('gc_players') || '[]');
+let scores  = JSON.parse(localStorage.getItem('gc_scores')  || '{}');
+let tgToken = localStorage.getItem('gc_tgtoken') || '';
+
+let curIdx = -1, curGif = null;
+let timerSec = 300, timerOn = false, timerIv = null;
+let pGender = 'girl', gifFilter = 'all';
+let pendingQ = [], pendingData = null;
+let tgStickers = [], selStickers = new Set();
+let bulkPending = [];
+
+function save(){
+  localStorage.setItem('gc_gifs',    JSON.stringify(gifs));
+  localStorage.setItem('gc_players', JSON.stringify(players));
+  localStorage.setItem('gc_scores',  JSON.stringify(scores));
+}
+
+// ========== NAV ==========
+function goPage(id, btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(id==='media')   renderGifs();
+  if(id==='players') renderPlayers();
+  if(id==='scores')  renderScores();
+}
+
+function showImport(id, btn){
+  document.querySelectorAll('.ipanel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.itab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('ip-'+id).classList.add('active');
+  btn.classList.add('active');
+  if(id==='tg' && tgToken) document.getElementById('tgTok').value=tgToken;
+}
+
+// ========== TIMER ==========
+function getDur(){ return parseInt(document.getElementById('durSel').value); }
+function fmt(s){ return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`; }
+
+function resetTimer(){
+  clearInterval(timerIv); timerOn=false;
+  timerSec=getDur();
+  document.getElementById('timerTxt').textContent=fmt(timerSec);
+  document.getElementById('timerArc').style.strokeDashoffset=0;
+  document.getElementById('timerArc').style.stroke='var(--pink)';
+  document.getElementById('timerBtn').textContent='▶️ Chrono';
+}
+
+function toggleTimer(){
+  if(timerOn){
+    clearInterval(timerIv); timerOn=false;
+    document.getElementById('timerBtn').textContent='▶️ Chrono';
+  } else {
+    if(timerSec<=0) resetTimer();
+    timerOn=true;
+    document.getElementById('timerBtn').textContent='⏸️ Pause';
+    const total=getDur();
+    timerIv=setInterval(()=>{
+      timerSec--;
+      const pct=timerSec/total;
+      document.getElementById('timerArc').style.strokeDashoffset=339*(1-pct);
+      document.getElementById('timerTxt').textContent=fmt(timerSec);
+      if(pct<.25) document.getElementById('timerArc').style.stroke='#ff4444';
+      else if(pct<.5) document.getElementById('timerArc').style.stroke='var(--yellow)';
+      if(timerSec<=0){
+        clearInterval(timerIv); timerOn=false;
+        document.getElementById('timerBtn').textContent='▶️ Chrono';
+        showAlert('⏰ Temps écoulé !','warn');
+      }
+    },1000);
+  }
+}
+
+// ========== GAME ==========
+function draw(){
+  if(!players.length){ showAlert('Ajoute des joueurs d\'abord !'); return; }
+  curIdx=(curIdx+1)%players.length;
+  const p=players[curIdx];
+  const pool=gifs.filter(g=>g.gender===p.gender||g.gender==='unset');
+  if(!pool.length){ showAlert(`Aucun média pour ${p.gender==='girl'?'les filles':'les garçons'} !`,'warn'); return; }
+  curGif=pool[Math.floor(Math.random()*pool.length)];
+  const box=document.getElementById('gifBox');
+  const badge=curGif.gender==='girl'?'👩':curGif.gender==='boy'?'👦':'❓';
+  box.innerHTML=`<img src="${curGif.data}" alt="" onerror="this.parentNode.innerHTML='<div class=no-gif>❌ Image non disponible</div>'"><div class="gbadge">${badge}</div>`;
+  const cp=document.getElementById('curPlayer');
+  const tag=p.gender==='girl'?'girl-tag':'boy-tag';
+  cp.innerHTML=`C'est à : <span class="${tag}">${p.gender==='girl'?'👩':'👦'} ${p.name}</span>`;
+  resetTimer();
+  document.getElementById('alertBox').style.display='none';
+}
+
+function skip(){ resetTimer(); draw(); }
+
+function point(){
+  if(curIdx<0||!players[curIdx]) return;
+  const n=players[curIdx].name;
+  scores[n]=(scores[n]||0)+1;
+  save();
+  showAlert(`🎉 +1 pour ${n} ! Total : ${scores[n]}`,'ok');
+  confetti();
+}
+
+// ========== ALERTS ==========
+function showAlert(msg,type=''){
+  const el=document.getElementById('alertBox');
+  el.textContent=msg; el.style.display='block';
+  el.style.borderColor=type==='warn'?'var(--yellow)':type==='ok'?'var(--green)':'var(--pink)';
+  el.style.background=type==='warn'?'rgba(255,233,79,.1)':type==='ok'?'rgba(79,255,145,.1)':'rgba(255,79,163,.1)';
+  el.style.color=type==='warn'?'var(--yellow)':type==='ok'?'var(--green)':'white';
+  clearTimeout(el._t); el._t=setTimeout(()=>el.style.display='none',4000);
+}
+
+// ========== CONFETTI ==========
+function confetti(){
+  const w=document.getElementById('confetti');
+  w.style.display='block'; w.innerHTML='';
+  const cols=['var(--pink)','var(--blue)','var(--yellow)','var(--green)','#ff8c40'];
+  for(let i=0;i<55;i++){
+    const d=document.createElement('div'); d.className='cp';
+    d.style.cssText=`left:${Math.random()*100}%;background:${cols[i%cols.length]};width:${7+Math.random()*9}px;height:${7+Math.random()*9}px;animation-duration:${1.2+Math.random()*1.8}s;animation-delay:${Math.random()*.5}s;border-radius:${Math.random()>.5?'50%':'2px'};`;
+    w.appendChild(d);
+  }
+  setTimeout(()=>{w.style.display='none';},3500);
+}
+
+// ========== FILE IMPORT ==========
+function onDrop(e){
+  e.preventDefault();
+  document.getElementById('dropZone').classList.remove('over');
+  const files=Array.from(e.dataTransfer.files).filter(f=>f.type.startsWith('image/')||f.type.startsWith('video/'));
+  if(files.length) startFileQueue(files);
+}
+function onFileInput(e){
+  const files=Array.from(e.target.files);
+  if(files.length) startFileQueue(files);
+  e.target.value='';
+}
+function startFileQueue(files){ pendingQ=[...files]; nextFile(); }
+function nextFile(){
+  if(!pendingQ.length){ renderGifs(); save(); return; }
+  const f=pendingQ.shift();
+  const r=new FileReader();
+  r.onload=ev=>{
+    const lower=f.name.toLowerCase();
+    const autoG=lower.match(/girl|fille|femme|woman/)?'girl':lower.match(/boy|gars|garcon|homme|man/)?'boy':'unset';
+    pendingData={data:ev.target.result,name:f.name,gender:autoG,id:Date.now()+Math.random(),source:'file'};
+    openGModal(ev.target.result);
+  };
+  r.readAsDataURL(f);
+}
+
+// ========== URL IMPORT ==========
+document.addEventListener('DOMContentLoaded',()=>{
+  const ui=document.getElementById('urlIn');
+  if(ui) ui.addEventListener('input',()=>{
+    const v=ui.value.trim();
+    if(v.startsWith('http')){
+      const img=document.getElementById('urlPrevImg');
+      img.src=v;
+      img.onload=()=>document.getElementById('urlPrev').style.display='block';
+      img.onerror=()=>document.getElementById('urlPrev').style.display='none';
+    }
+  });
+});
+
+function importUrl(){
+  const url=document.getElementById('urlIn').value.trim();
+  if(!url.startsWith('http')) return;
+  // Try to fetch + convert to base64
+  const proxies=[
+    `https://corsproxy.io/?${encodeURIComponent(url)}`,
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+    url
+  ];
+  (async()=>{
+    let data=null;
+    for(const p of proxies){
+      try{
+        const r=await fetch(p);
+        if(!r.ok) continue;
+        const blob=await r.blob();
+        data=await blobToB64(blob);
+        break;
+      }catch{}
+    }
+    pendingData={data:data||url,name:'sticker',gender:'unset',id:Date.now(),source:'url'};
+    pendingQ=[];
+    openGModal(data||url);
+  })();
+  document.getElementById('urlIn').value='';
+  document.getElementById('urlPrev').style.display='none';
+}
+
+// ========== GENDER MODAL ==========
+function openGModal(src){
+  document.getElementById('gModalImg').src=src;
+  document.getElementById('gModal').classList.add('show');
+}
+function assignGender(g){
+  if(!pendingData) return;
+  pendingData.gender=g;
+  gifs.push(pendingData);
+  pendingData=null;
+  document.getElementById('gModal').classList.remove('show');
+  save();
+  if(pendingQ.length) nextFile();
+  else renderGifs();
+}
+
+// ========== TELEGRAM ==========
+async function tgCall(method,params={}){
+  const tok=document.getElementById('tgTok').value.trim()||tgToken;
+  const qs=new URLSearchParams(params).toString();
+  const r=await fetch(`https://api.telegram.org/bot${tok}/${method}${qs?'?'+qs:''}`);
+  return r.json();
+}
+
+async function checkToken(){
+  const tok=document.getElementById('tgTok').value.trim();
+  if(!tok) return;
+  const st=document.getElementById('tgSt');
+  st.textContent='Vérification…'; st.className='tg-status';
+  try{
+    const r=await fetch(`https://api.telegram.org/bot${tok}/getMe`).then(x=>x.json());
+    if(r.ok){
+      tgToken=tok; localStorage.setItem('gc_tgtoken',tok);
+      st.textContent=`✅ Connecté : @${r.result.username}`; st.className='tg-status ok';
+    } else {
+      st.textContent='❌ Token invalide'; st.className='tg-status err';
+    }
+  }catch{
+    st.textContent='❌ Erreur réseau'; st.className='tg-status err';
+  }
+}
+
+async function loadPack(){
+  const tok=document.getElementById('tgTok').value.trim()||tgToken;
+  if(!tok){ alert('Configure ton token Bot d\'abord !'); return; }
+  let name=document.getElementById('packIn').value.trim().replace(/.*addstickers\//i,'').replace(/\?.*/,'').trim();
+  if(!name){ alert('Entre un nom de pack'); return; }
+
+  const btn=document.getElementById('loadBtn');
+  btn.innerHTML='Chargement<span class="spin"></span>'; btn.disabled=true;
+  document.getElementById('pgBar').style.display='block';
+  document.getElementById('pgFill').style.width='5%';
+  document.getElementById('pgLabel').textContent='Récupération du pack…';
+  document.getElementById('tgPackSection').style.display='none';
+  tgStickers=[]; selStickers=new Set();
+
+  try{
+    const res=await fetch(`https://api.telegram.org/bot${tok}/getStickerSet?name=${encodeURIComponent(name)}`).then(x=>x.json());
+    if(!res.ok){ alert('Pack introuvable : '+res.description); btn.textContent='Charger'; btn.disabled=false; return; }
+    
+    const stks=res.result.stickers;
+    document.getElementById('packTitle').textContent=`📦 ${res.result.title} — ${stks.length} stickers`;
+    document.getElementById('pgLabel').textContent=`Récupération des URLs (${stks.length} stickers)…`;
+
+    // On récupère les URLs ET on convertit directement en base64
+    // comme ça pas besoin de proxy pour afficher les images
+    let done=0;
+    const BATCH=3;
+    for(let i=0;i<stks.length;i+=BATCH){
+      await Promise.all(stks.slice(i,i+BATCH).map(async st=>{
+        try{
+          const fRes=await fetch(`https://api.telegram.org/bot${tok}/getFile?file_id=${st.file_id}`).then(x=>x.json());
+          if(fRes.ok){
+            const fileUrl=`https://api.telegram.org/file/bot${tok}/${fRes.result.file_path}`;
+            // Télécharge directement — l'API Telegram autorise les requêtes depuis le navigateur
+            let b64=null;
+            try{
+              const imgRes=await fetch(fileUrl);
+              if(imgRes.ok){
+                const blob=await imgRes.blob();
+                b64=await blobToB64(blob);
+              }
+            }catch{}
+            tgStickers.push({fid:st.file_id,emoji:st.emoji||'🎭',url:fileUrl,b64});
+            selStickers.add(st.file_id);
+          }
+        }catch{}
+        done++;
+        document.getElementById('pgFill').style.width=Math.round(done/stks.length*100)+'%';
+        document.getElementById('pgLabel').textContent=`${done}/${stks.length} images téléchargées…`;
+      }));
+    }
+
+    renderStkGrid();
+    document.getElementById('tgPackSection').style.display='block';
+    document.getElementById('pgLabel').textContent=`✅ ${tgStickers.length} stickers chargés`;
+    setTimeout(()=>document.getElementById('pgBar').style.display='none',2000);
+  }catch(e){
+    alert('Erreur : '+e.message);
+  }
+  btn.textContent='Charger'; btn.disabled=false;
+}
+
+function renderStkGrid(){
+  document.getElementById('stkGrid').innerHTML=tgStickers.map(s=>`
+    <div class="stk ${selStickers.has(s.fid)?'sel':''}" onclick="toggleStk('${s.fid}',this)">
+      ${s.b64
+        ? `<img src="${s.b64}" alt="${s.emoji}" loading="lazy">`
+        : `<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:2rem">${s.emoji}</div>`}
+      <div class="ck">✓</div>
+    </div>
+  `).join('');
+  updateSelCount();
+}
+
+function toggleStk(fid,el){
+  selStickers.has(fid)?selStickers.delete(fid):selStickers.add(fid);
+  el.classList.toggle('sel'); updateSelCount();
+}
+function selAll(){ tgStickers.forEach(s=>selStickers.add(s.fid)); renderStkGrid(); }
+function selNone(){ selStickers.clear(); renderStkGrid(); }
+function updateSelCount(){
+  const n=selStickers.size;
+  document.getElementById('selCount').textContent=n?`${n} sélectionné(s)`:'';
+  document.getElementById('importStkBtn').style.display=n?'inline-block':'none';
+}
+
+async function importStickers(){
+  const sel=tgStickers.filter(s=>selStickers.has(s.fid));
+  if(!sel.length) return;
+  // Les images sont déjà en base64 depuis le chargement du pack — on les utilise directement
+  bulkPending=sel.map(s=>({
+    data: s.b64||s.url,
+    name: s.emoji,
+    gender: 'unset',
+    id: Date.now()+Math.random(),
+    source: 'telegram'
+  }));
+  document.getElementById('bulkMsg').textContent=`${bulkPending.length} sticker(s) prêts — choisis le genre :`;
+  document.getElementById('bulkModal').classList.add('show');
+}
+
+function assignBulk(g){
+  if(!bulkPending.length){ document.getElementById('bulkModal').classList.remove('show'); return; }
+  bulkPending.forEach(x=>{x.gender=g;gifs.push(x);});
+  bulkPending=[];
+  document.getElementById('bulkModal').classList.remove('show');
+  save(); renderGifs();
+  showAlert('Stickers importés !','ok');
+}
+
+// ========== HELPERS ==========
+function blobToB64(blob){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=e=>res(e.target.result);
+    r.onerror=rej;
+    r.readAsDataURL(blob);
+  });
+}
+
+// ========== GIF LIBRARY ==========
+function setFilter(f,btn){
+  gifFilter=f;
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderGifs();
+}
+
+function renderGifs(){
+  const total=gifs.length;
+  const ng=gifs.filter(x=>x.gender==='girl').length;
+  const nb=gifs.filter(x=>x.gender==='boy').length;
+  const nu=gifs.filter(x=>x.gender==='unset').length;
+  document.getElementById('totalLbl').textContent=total?`(${total})`:'';
+  document.getElementById('cAll').textContent=total||'';
+  document.getElementById('cGirl').textContent=ng||'';
+  document.getElementById('cBoy').textContent=nb||'';
+  document.getElementById('cUnset').textContent=nu||'';
+
+  const list=gifFilter==='all'?gifs:gifs.filter(x=>x.gender===gifFilter);
+  const grid=document.getElementById('gifGrid');
+  if(!list.length){ grid.innerHTML='<div class="empty" style="grid-column:1/-1">Aucun média</div>'; return; }
+  const srcIco={'telegram':'✈️','url':'🔗','file':'📁'};
+  grid.innerHTML=list.map(g=>`
+    <div class="gif-card ${g.gender==='girl'?'girl':g.gender==='boy'?'boy':''}">
+      <img src="${g.data}" alt="" loading="lazy" onerror="this.style.display='none'">
+      <div class="gbadge2">${g.gender==='girl'?'👩':g.gender==='boy'?'👦':'❓'}</div>
+      <div class="src">${srcIco[g.source]||'📁'}</div>
+      <button class="del" onclick="delGif('${g.id}')">✕</button>
+    </div>
+  `).join('');
+}
+
+function delGif(id){
+  gifs=gifs.filter(g=>g.id!=id);
+  save(); renderGifs();
+}
+
+// ========== PLAYERS ==========
+function setPGender(g){
+  pGender=g;
+  document.getElementById('gG').className='gbtn'+(g==='girl'?' ag':'');
+  document.getElementById('gB').className='gbtn'+(g==='boy'?' ab':'');
+}
+
+function addPlayer(){
+  const n=document.getElementById('pName').value.trim();
+  if(!n) return;
+  players.push({name:n,gender:pGender,id:Date.now()});
+  scores[n]=scores[n]||0;
+  document.getElementById('pName').value='';
+  save(); renderPlayers();
+}
+
+function renderPlayers(){
+  const list=document.getElementById('pList');
+  if(!players.length){ list.innerHTML='<div class="empty">Aucun joueur</div>'; return; }
+  list.innerHTML=players.map((p,i)=>`
+    <div class="pitem ${p.gender==='girl'?'girl':'boy'}">
+      <span style="font-size:1.2rem">${p.gender==='girl'?'👩':'👦'}</span>
+      <span class="pname">${p.name}</span>
+      <span class="pscore">${scores[p.name]||0} pts</span>
+      <button onclick="removePlayer(${i})" style="background:transparent;border:none;color:#666;cursor:pointer;font-size:.95rem;">✕</button>
+    </div>
+  `).join('');
+}
+
+function removePlayer(i){
+  players.splice(i,1);
+  if(curIdx>=players.length) curIdx=-1;
+  save(); renderPlayers();
+}
+
+// ========== SCORES ==========
+function renderScores(){
+  const board=document.getElementById('scoreBoard');
+  const sorted=Object.entries(scores).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
+  if(!sorted.length){ board.innerHTML='<div class="empty">Aucun score</div>'; return; }
+  const m=['🥇','🥈','🥉'];
+  board.innerHTML=sorted.map(([n,pts],i)=>{
+    const p=players.find(x=>x.name===n);
+    return `<div class="srow">
+      <span>${m[i]||`${i+1}.`} ${p?(p.gender==='girl'?'👩':'👦'):'🎮'} ${n}</span>
+      <span style="font-family:'Boogaloo',cursive;font-size:1.1rem;color:var(--yellow)">${pts} pts</span>
+    </div>`;
+  }).join('');
+}
+
+function resetScores(){
+  if(!confirm('Remettre tous les scores à zéro ?')) return;
+  Object.keys(scores).forEach(k=>scores[k]=0);
+  save(); renderScores();
+}
+
+// ========== PWA INSTALL ==========
+let deferredInstall=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault(); deferredInstall=e;
+  document.getElementById('installBanner').style.display='flex';
+});
+window.addEventListener('appinstalled',()=>document.getElementById('installBanner').style.display='none');
+function showInstallHelp(){ document.getElementById('installModal').classList.add('show'); }
+function doInstall(){
+  if(deferredInstall){ deferredInstall.prompt(); deferredInstall.userChoice.then(()=>{deferredInstall=null;document.getElementById('installBanner').style.display='none';}); }
+}
+
+// ========== SERVICE WORKER ==========
+if('serviceWorker' in navigator){
+  // Inline service worker via blob URL so it works from a single file
+  const swCode=`
+const CACHE='gc-v1';
+self.addEventListener('install',e=>{self.skipWaiting();});
+self.addEventListener('activate',e=>{self.clients.claim();});
+self.addEventListener('fetch',e=>{
+  if(e.request.url.startsWith('https://api.telegram.org')||e.request.url.startsWith('https://corsproxy')||e.request.url.startsWith('https://api.allorigins')){
+    e.respondWith(fetch(e.request));
+    return;
+  }
+  e.respondWith(caches.open(CACHE).then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(res=>{c.put(e.request,res.clone());return res;}).catch(()=>r))));
+});
+  `;
+  const blob=new Blob([swCode],{type:'application/javascript'});
+  const swUrl=URL.createObjectURL(blob);
+  navigator.serviceWorker.register(swUrl,{scope:'./'}).catch(()=>{});
+}
+</script>
+</body>
+</html>
